@@ -6,7 +6,7 @@ Simula un chat con las siguientes funcionalidades:
 * Comunicación entre usuarios.
 * Comunicación entre 1 a muchos.
 * Comunicación entre salas de chat.
-* nNotificación de entrada y salida de usuarios.
+* Notificación de entrada y salida de usuarios.
 
 Ejecutar el siguiente comando para reconstruir los módulos de node
 
