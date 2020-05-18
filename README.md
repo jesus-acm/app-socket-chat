@@ -15,6 +15,6 @@ npm install
 ```
 
 Para iniciar el proyecto ejecutar el siguiente comando
-````
+```
 npm start
 ```
