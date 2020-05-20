@@ -1,5 +1,5 @@
 const { io } = require('../server');
-const {Usuarios} = require('../classes/usuarios');
+const { Usuarios } = require('../classes/usuarios');
 const { crearMensaje } = require('../utils/utils');
 
 const usuarios = new Usuarios();
@@ -41,9 +41,11 @@ io.on('connection', (client) => {
         client.broadcast.to(personaBorrada.sala).emit('listaPersona', usuarios.getPersonasPorSala(personaBorrada.sala));
     });
 
-    client.on('mensajePrivado', data=>{
+    client.on('mensajePrivado', (data, callback)=>{
         let persona = usuarios.getPersona(client.id);
+        let mensaje = crearMensaje(persona.nombre, data.mensaje);
 
-        client.broadcast.to(data.para).emit('mensajePrivado', crearMensaje(persona.nombre, data.mensaje));
+        client.broadcast.to(data.para).emit('mensajePrivado', mensaje);
+        callback(mensaje);
     });
 });

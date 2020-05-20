@@ -1,14 +1,17 @@
-
+var usuariosGlobal = [];
 var params = new URLSearchParams(window.location.search);
 
 var nombre = params.get('nombre');
 var sala = params.get('sala');
+var idGeneral = 'todos-usuarios';
 
 // referencias de jquery
 var divUsuarios = $('#divUsuarios');
 var formEnviar = $('#formEnviar');
 var txtMensaje =$('#txtMensaje');
 var divChatbox = $('#divChatbox');
+var divSala = $('#divSala');
+var buscarContacto = $('#buscarContacto');
 
 // Funciones para renderizar usuarios
 function renderizarUsuarios(personas){ // [{}, {}, {}]
@@ -16,12 +19,12 @@ function renderizarUsuarios(personas){ // [{}, {}, {}]
 
     var html = '';
     html += '<li>';
-    html += '    <a href="javascript:void(0)" class="active"> Chat de <span>'+params.get('sala')+'</span></a>';
+    html += '    <a data-id="todos-usuarios" id="todos-usuarios" class="active"> Chat de <span>'+params.get('sala')+'</span></a>';
     html += '</li>';
 
     for (let i = 0; i < personas.length; i++){
         html += '<li>';
-        html += '    <a data-id="'+personas[i].id+'" href="javascript:void(0)"><img src="assets/images/users/1.jpg" alt="user-img" class="img-circle"> <span>'+personas[i].nombre+' <small class="text-success">online</small></span></a>';
+        html += '    <a id='+personas[i].id+' data-id="'+personas[i].id+'" href="javascript:void(0)"><img src="assets/images/users/1.jpg" alt="user-img" class="img-circle"> <span>'+personas[i].nombre+' <small class="text-success">online</small></span></a>';
         html += '</li>';
     }
 
@@ -66,6 +69,12 @@ function renderizarMensajes(mensaje, yo){
     divChatbox.append(html);
 }
 
+function renderizarNombreSala (){
+    var html = '    <h3 class="box-title">Sala de chat <small>'+params.get('sala')+'</small></h3>';
+    divSala.empty();
+    divSala.append(html);
+}
+
 function scrollBottom() {
 
     // selectors
@@ -91,8 +100,13 @@ divUsuarios.on('click', 'a', function(){
     var id = $(this).data('id');
     if(id){
         console.log(id);
+        $(`#${ idGeneral }`).removeClass('active');
+        idGeneral = id;
+        $(`#${ id }`).addClass('active');
     }
 });
+
+
 
 formEnviar.on('submit', function (event){
     event.preventDefault();
@@ -100,13 +114,33 @@ formEnviar.on('submit', function (event){
     if(txtMensaje.val().trim().length === 0){
         return;
     }
+    if (idGeneral==='todos-usuarios'){
+        socket.emit('crearMensaje', {
+            nombre: nombre,
+            mensaje: txtMensaje.val()
+        }, function(mensaje) {
+            txtMensaje.val('').focus();
+            renderizarMensajes(mensaje, true);
+            scrollBottom();
+        });
+    }else{
+        socket.emit('mensajePrivado', {
+            para:idGeneral, 
+            mensaje:txtMensaje.val()
+        }, function(mensajePrivado){
+            txtMensaje.val('').focus();
+            renderizarMensajes(mensajePrivado, true);
+            scrollBottom();
+        });
+    }
+});
 
-    socket.emit('crearMensaje', {
-        nombre: nombre,
-        mensaje: txtMensaje.val()
-    }, function(mensaje) {
-        txtMensaje.val('').focus();
-        renderizarMensajes(mensaje, true);
-        scrollBottom();
-    });
+
+buscarContacto.click(function(){
+    console.log('App')
+    console.log(usuariosGlobal);
+});
+
+socket.on('listaPersona', function(personas) {
+    renderizarUsuarios(personas);
 });
