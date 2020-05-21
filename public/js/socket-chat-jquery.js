@@ -14,8 +14,11 @@ var divSala = $('#divSala');
 var buscarContacto = $('#buscarContacto');
 
 // Funciones para renderizar usuarios
-function renderizarUsuarios(personas){ // [{}, {}, {}]
+function renderizarUsuarios(personas, modificar){ // [{}, {}, {}]
     console.log(personas);
+    if(modificar){
+        usuariosGlobal = personas;
+    }
 
     var html = '';
     html += '<li>';
@@ -99,7 +102,6 @@ divUsuarios.on('click', 'a', function(){
 
     var id = $(this).data('id');
     if(id){
-        console.log(id);
         $(`#${ idGeneral }`).removeClass('active');
         idGeneral = id;
         $(`#${ id }`).addClass('active');
@@ -136,11 +138,9 @@ formEnviar.on('submit', function (event){
 });
 
 
-buscarContacto.click(function(){
-    console.log('App')
-    console.log(usuariosGlobal);
-});
+buscarContacto.keyup(function(){
+    let expresion = new RegExp(`${ $('#buscarContacto').val() }`,'i');
 
-socket.on('listaPersona', function(personas) {
-    renderizarUsuarios(personas);
+    let personas = usuariosGlobal.filter(persona => expresion.test(persona.nombre));
+    renderizarUsuarios(personas, false);
 });
